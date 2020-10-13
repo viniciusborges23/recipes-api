@@ -1,0 +1,12 @@
+version: "3"
+services: 
+  api:
+    build: .
+    command: yarn dev
+    container_name: recipes_api
+    volumes: 
+      - .:/usr/src/app
+    ports:
+      - 3000:3000
+    environment: 
+      - PORT=3000
