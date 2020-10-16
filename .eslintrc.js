@@ -16,6 +16,9 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    'no-shadow': 'off',
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-shadow': ['error'],
     'import/extensions': [
       'error',
       'ignorePackages',
