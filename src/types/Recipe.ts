@@ -5,4 +5,10 @@ interface Recipe {
   gif: string;
 }
 
+export interface PuppyRecipe {
+  title: string;
+  ingredients: string;
+  href: string;
+}
+
 export default Recipe;

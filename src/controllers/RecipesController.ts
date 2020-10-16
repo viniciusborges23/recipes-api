@@ -1,33 +1,9 @@
 import pMap from 'p-map';
 import { Router, Request, Response } from 'express';
+import sanitize from '../libs/sanitize';
 import recipePuppyApi from '../services/recipePuppyApi';
-import giphyApi from '../services/giphyApi';
-
-const { GIPHY_API_KEY } = process.env;
-
-function sanitize(title: string) {
-  return title.trim().replace(/\n|\r|\t/g, '');
-}
-
-async function getGIF(title: string) {
-  let gif = '';
-
-  try {
-    const { data: { data } } = await giphyApi.get(`search?api_key=${GIPHY_API_KEY}&q=${title}&limit=1&lang=en`);
-
-    gif = data[0]?.url || '';
-  } catch (e) {
-    // noop
-  }
-
-  return gif;
-}
-
-interface PuppyRecipes {
-  title: string;
-  ingredients: string;
-  href: string;
-}
+import { getGIF } from '../services/giphyApi';
+import Recipe, { PuppyRecipe } from '../types/Recipe';
 
 class RecipesController {
   public path = '/recipes';
@@ -52,9 +28,23 @@ class RecipesController {
     }
   }
 
+  static async mapper(puppyRecipe: PuppyRecipe): Promise<Recipe> {
+    const { title, ingredients, href: link } = puppyRecipe;
+
+    const gif = await getGIF(title);
+
+    return {
+      title: sanitize(title),
+      ingredients: ingredients.split(', ').sort(),
+      link,
+      gif,
+    };
+  }
+
   static async getAll(req: Request, res: Response): Promise<void> {
     try {
       const ingredientsQuery = req.query.i as string;
+      const keywords = ingredientsQuery.split(',');
 
       RecipesController.validateIngredients(ingredientsQuery);
 
@@ -62,27 +52,16 @@ class RecipesController {
 
       if (!results) {
         res.json({
-          keywords: ingredientsQuery.split(','),
+          keywords,
           recipes: [],
         });
         return;
       }
 
-      const mapper = async ({ title, ingredients, href: link }: PuppyRecipes) => {
-        const gif = await getGIF(title);
-
-        return {
-          title: sanitize(title),
-          ingredients: ingredients.split(', ').sort(),
-          link,
-          gif,
-        };
-      };
-
-      const recipes = await pMap(results, mapper);
+      const recipes = await pMap(results, RecipesController.mapper);
 
       res.json({
-        keywords: ingredientsQuery.split(','),
+        keywords,
         recipes,
       });
     } catch (e) {
