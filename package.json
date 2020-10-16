@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "tsnd --ignore node_modules --transpile-only --no-notify --respawn src/server.ts"
+    "dev": "tsnd --ignore node_modules --transpile-only --no-notify --respawn src/server.ts",
+    "test": "jest"
   },
   "dependencies": {
     "axios": "^0.20.0",
@@ -25,6 +26,8 @@
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.1",
+    "jest": "^26.5.3",
+    "ts-jest": "^26.4.1",
     "ts-node-dev": "^1.0.0-pre.63",
     "typescript": "^4.0.3"
   }
